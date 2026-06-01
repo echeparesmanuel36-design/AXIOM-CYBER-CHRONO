@@ -2,16 +2,17 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AXIOM // CYBER-CHRONO</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>AXIOM // CYBER-CHRONO ULTIMATE</title>
+    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
     
     <style>
-        /* --- ESTILOS BASE NEO-TOKIO --- */
+        /* --- SISTEMA DE DISEÑO ADAPTATIVO NEO-TOKIO --- */
         :root {
-            --bg-color: #050508;
+            --bg-color: #040406;
             --neon-purple: #9d4edd;
             --neon-cyan: #00f5d4;
             --neon-orange: #ff6b35;
@@ -24,21 +25,22 @@
             padding: 0;
             box-sizing: border-box;
             user-select: none;
+            -webkit-tap-highlight-color: transparent;
         }
 
         body {
             background-color: var(--bg-color);
             color: #ffffff;
-            font-family: var-font-main;
+            font-family: sans-serif;
             overflow-x: hidden;
-            transition: background-color 0.5s ease;
+            transition: background-color 0.6s cubic-bezier(0.25, 1, 0.5, 1);
         }
 
         body.overload-active {
-            animation: glitch-bg 0.1s infinite;
+            animation: glitch-bg 0.15s infinite;
         }
 
-        /* --- CONTENEDOR 3D (FIJO) --- */
+        /* --- CONTENEDOR 3D INMERSIVO (RESPONSIVE) --- */
         #canvas-container {
             position: fixed;
             top: 0;
@@ -46,10 +48,10 @@
             width: 100vw;
             height: 100vh;
             z-index: 1;
-            pointer-events: none; /* Permite scroll sobre el canvas */
+            pointer-events: none; /* Crucial para permitir scroll nativo en móviles */
         }
 
-        /* --- INTERFAZ HTML SCROLL (CAPA SUPERIOR) --- */
+        /* --- CAPA DE CONTENIDO (SCROLL WRAPPER) --- */
         .scroll-wrapper {
             position: relative;
             z-index: 2;
@@ -59,109 +61,138 @@
         section {
             position: relative;
             min-height: 100vh;
+            width: 100%;
             display: flex;
             align-items: center;
-            padding: 10vw;
+            padding: 2rem 5vw;
         }
 
-        .left-content {
-            max-width: 50%;
+        /* Contenedores de texto adaptativos */
+        .content-box {
+            width: 100%;
+            max-width: 600px;
             display: flex;
             flex-direction: column;
             gap: 1rem;
+            z-index: 3;
         }
 
-        .right-content {
+        .content-box.right {
             margin-left: auto;
-            max-width: 45%;
             text-align: right;
+            align-items: flex-end;
         }
 
-        /* --- TIPOGRAFÍAS Y EFECTOS --- */
+        /* --- TIPOGRAFÍA FLUIDA CLAMP (PC / MÓVIL) --- */
         .giant-text {
-            font-size: clamp(3rem, 7vw, 9rem);
+            font-size: clamp(2.2rem, 6vw, 7.5rem);
             font-family: var(--font-main);
             text-transform: uppercase;
-            line-height: 0.9;
-            letter-spacing: -2px;
+            line-height: 0.95;
+            letter-spacing: -1px;
             opacity: 0;
-            transform: translateY(50px);
+            transform: translateY(40px);
         }
 
-        .purple-glow { color: var(--neon-purple); text-shadow: 0 0 20px var(--neon-purple); }
-        .cyan-glow { color: var(--neon-cyan); text-shadow: 0 0 20px var(--neon-cyan); }
-        .orange-glow { color: var(--neon-orange); text-shadow: 0 0 20px var(--neon-orange); }
+        .purple-glow { color: var(--neon-purple); text-shadow: 0 0 25px rgba(157, 78, 221, 0.6); }
+        .cyan-glow { color: var(--neon-cyan); text-shadow: 0 0 25px rgba(0, 245, 212, 0.6); }
+        .orange-glow { color: var(--neon-orange); text-shadow: 0 0 25px rgba(255, 107, 53, 0.6); }
 
         .sub-text {
-            font-size: 1.2rem;
-            font-family: sans-serif;
-            letter-spacing: 2px;
-            color: #888;
+            font-size: clamp(0.9rem, 1.5vw, 1.2rem);
+            letter-spacing: 3px;
+            color: #8a8a93;
             text-transform: uppercase;
-            margin-top: 10px;
+            font-weight: 700;
         }
 
-        /* --- CONTADORES SECCIÓN 3 --- */
+        /* --- CUADRÍCULA DE RENDIMIENTO REORGANIZABLE --- */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 2rem;
-            margin-top: 2rem;
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+            width: 100%;
         }
 
         .stat-box {
-            background: rgba(255, 255, 255, 0.03);
+            background: rgba(255, 255, 255, 0.02);
             border-left: 4px solid var(--neon-cyan);
-            padding: 1.5rem;
-            backdrop-filter: blur(5px);
+            padding: 1.2rem;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: 0 8px 8px 0;
         }
 
         .stat-num {
-            font-size: 3rem;
+            font-size: clamp(1.8rem, 4vw, 3rem);
             font-family: var(--font-main);
-            color: #fff;
         }
 
-        /* --- BOTÓN DE SOBRECARGA CRÍTICA --- */
+        /* --- BOTÓN DE SOBRECARGA INTEGRADO --- */
         #overload-btn {
             position: fixed;
-            bottom: 40px;
-            right: 40px;
+            bottom: 25px;
+            right: 25px;
             z-index: 100;
-            background: transparent;
+            background: rgba(5, 5, 8, 0.8);
             border: 2px solid var(--neon-red);
             color: var(--neon-red);
             font-family: var(--font-main);
-            padding: 15px 30px;
-            font-size: 1rem;
+            padding: 12px 24px;
+            font-size: 0.85rem;
             cursor: pointer;
             letter-spacing: 2px;
+            border-radius: 4px;
             box-shadow: 0 0 15px rgba(255, 0, 84, 0.2);
+            backdrop-filter: blur(5px);
             transition: all 0.3s ease;
         }
 
-        #overload-btn:hover {
+        #overload-btn:hover, #overload-btn:active {
             background: var(--neon-red);
             color: #000;
             box-shadow: 0 0 30px var(--neon-red);
-            transform: scale(1.05);
         }
 
-        /* --- CAPA DE EFECTO GLITCH DE SOBRECARGA --- */
         #glitch-overlay {
             position: fixed;
             top: 0; left: 0; width: 100vw; height: 100vh;
-            background: rgba(255, 0, 84, 0.1);
+            background: rgba(255, 0, 84, 0.12);
             z-index: 99;
             display: none;
             pointer-events: none;
             mix-blend-mode: difference;
         }
 
+        /* --- MEDIA QUERIES EXTENCIVAS PARA SMARTPHONES --- */
+        @media (max-width: 768px) {
+            section {
+                padding: 4rem 6vw;
+                align-items: flex-start; /* Mueve el texto arriba para dejar espacio al modelo 3D */
+                padding-top: 15vh;
+            }
+            .content-box.right {
+                text-align: left;
+                align-items: flex-start;
+                margin-left: 0;
+                padding-top: 45vh; /* En sección 3, baja el texto para alternar espacio */
+            }
+            .stats-grid {
+                grid-template-columns: 1fr; /* Una columna en móvil para evitar colapsos */
+                gap: 1rem;
+            }
+            #overload-btn {
+                width: calc(100% - 50px); /* Botón completo abajo en móvil, fácil de pulsar */
+                left: 25px;
+                text-align: center;
+            }
+        }
+
         @keyframes glitch-bg {
-            0% { background-color: #050508; }
-            50% { background-color: #1a0010; }
-            100% { background-color: #050508; }
+            0% { background-color: #040406; }
+            50% { background-color: #15010b; }
+            100% { background-color: #040406; }
         }
     </style>
 </head>
@@ -172,38 +203,38 @@
     <div id="canvas-container"></div>
 
     <div class="scroll-wrapper">
-        <section id="sec-intro">
-            <div class="left-content">
-                <h1 class="giant-text purple-glow" id="t1">CYBER<br>CHRONO</h1>
+        <section>
+            <div class="content-box">
+                <h1 class="giant-text purple-glow">CYBER<br>CHRONO</h1>
                 <p class="sub-text">AXIOM HOROLOGY // NEO-TOKYO RELOADED</p>
             </div>
         </section>
 
-        <section id="sec-xray">
-            <div class="left-content">
-                <h2 class="giant-text cyan-glow" id="t2">TITANIO.<br>GRAFENO.<br>LUZ.</h2>
-                <p class="sub-text">Arquitectura interna molecular expuesta.</p>
+        <section>
+            <div class="content-box">
+                <h2 class="giant-text cyan-glow">TITANIO.<br>GRAFENO.<br>LUZ.</h2>
+                <p class="sub-text">Ingeniería molecular expuesta por scroll.</p>
             </div>
         </section>
 
-        <section id="sec-custom">
-            <div class="right-content">
-                <h2 class="giant-text orange-glow" id="t3">MUTACIÓN<br>TACTICAL</h2>
-                <p class="sub-text">Estética blindada auto-configurable.</p>
+        <section>
+            <div class="content-box right">
+                <h2 class="giant-text orange-glow">MUTACIÓN<br>TACTICAL</h2>
+                <p class="sub-text">Estética blindada autoconfigurable.</p>
             </div>
         </section>
 
-        <section id="sec-scanner">
-            <div class="left-content" style="max-width: 70%;">
-                <h2 class="giant-text" id="t4" style="color: #fff;">SISTEMA OPERATIVO</h2>
+        <section>
+            <div class="content-box" style="max-width: 100%;">
+                <h2 class="giant-text" style="color: #fff; text-shadow: 0 0 20px rgba(255,255,255,0.2);">SISTEMA ACTIVO</h2>
                 <div class="stats-grid">
                     <div class="stat-box">
                         <div class="stat-num" id="stat-bat">0%</div>
-                        <div class="sub-text">CAPACIDAD BATERÍA</div>
+                        <div class="sub-text">BATERÍA ESTABLE</div>
                     </div>
                     <div class="stat-box" style="border-left-color: var(--neon-orange);">
                         <div class="stat-num" id="stat-cpu">CORE</div>
-                        <div class="sub-text">ESTADO PROCESADOR</div>
+                        <div class="sub-text">PROCESADOR INTEL</div>
                     </div>
                 </div>
             </div>
@@ -211,195 +242,202 @@
     </div>
 
     <script>
-        // Registrar ScrollTrigger en GSAP
         gsap.registerPlugin(ScrollTrigger);
 
+        // Flag de dispositivo para calcular escalas óptimas
+        const isMobile = window.innerWidth <= 768;
+
         /* =========================================================================
-           1. CONFIGURACIÓN DEL ENTORNO 3D (THREE.JS)
+           1. ENTORNO 3D ULTRA-OPTIMIZADO ADAPTATIVO
            ========================================================================= */
         const container = document.getElementById('canvas-container');
         const scene = new THREE.Scene();
         
-        // Cámara
         const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
-        camera.position.z = 6;
+        // Ajuste dinámico de distancia de cámara según dispositivo
+        camera.position.z = isMobile ? 6.5 : 5.5; 
 
-        // Renderizador
         const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
+        // Limitar pixelRatio a 2 para evitar caídas de FPS devastadoras en pantallas móviles de alta densidad
         renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
         container.appendChild(renderer.domElement);
 
         /* =========================================================================
-           2. ILUMINACIÓN PREMIUM DE ESTUDIO DE NEÓN
+           2. ILUMINACIÓN EN CONTRASTE (ESTUDIO PORTÁTIL)
            ========================================================================= */
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.2);
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.25);
         scene.add(ambientLight);
 
-        const rimLight = new THREE.DirectionalLight(0x9d4edd, 2); // Púrpura Eléctrico
-        rimLight.position.set(-5, 3, -2);
+        const rimLight = new THREE.DirectionalLight(0x9d4edd, 2.5);
+        rimLight.position.set(-4, 3, -2);
         scene.add(rimLight);
 
-        const keyLight = new THREE.DirectionalLight(0x00f5d4, 2); // Cian
-        keyLight.position.set(5, 3, 2);
+        const keyLight = new THREE.DirectionalLight(0x00f5d4, 2.5);
+        keyLight.position.set(4, 2, 2);
         scene.add(keyLight);
 
-        const fillLight = new THREE.DirectionalLight(0xff6b35, 1); // Naranja
-        fillLight.position.set(0, -5, 2);
+        const fillLight = new THREE.DirectionalLight(0xff6b35, 1.5);
+        fillLight.position.set(0, -4, 1);
         scene.add(fillLight);
 
         /* =========================================================================
-           3. CONSTRUCCIÓN PROCEDIMENTAL DEL RELOJ (GRUPO MAESTRO)
+           3. OBJETO MAESTRO 3D PROCEDIMENTAL
            ========================================================================= */
         const cyberWatch = new THREE.Group();
 
-        // Materiales Avanzados
+        // Escala inicial adaptativa del Grupo Reloj
+        const baseScale = isMobile ? 0.85 : 1.1;
+        cyberWatch.scale.set(baseScale, baseScale, baseScale);
+
+        // Materiales de física real (PBR) con refracción premium
         const caseMaterial = new THREE.MeshPhysicalMaterial({
             color: 0xffffff,
             transparent: true,
-            opacity: 0.4,
-            roughness: 0.1,
+            opacity: 0.35,
+            roughness: 0.15,
             metalness: 0.1,
-            transmission: 0.9, // Efecto Cristal/Transparente
-            ior: 1.5,
+            transmission: 0.85,
+            ior: 1.45,
             side: THREE.DoubleSide
         });
 
         const coreMaterial = new THREE.MeshStandardMaterial({
-            color: 0x111115,
-            metalness: 0.9,
-            roughness: 0.2
+            color: 0x0f0f13,
+            metalness: 0.85,
+            roughness: 0.25
         });
 
         const neonGearMaterial = new THREE.MeshStandardMaterial({
             color: 0x00f5d4,
             emissive: 0x00f5d4,
-            emissiveIntensity: 0.5
+            emissiveIntensity: 0.6
         });
 
-        // Componente A: Chasis Principal Externo (Cilindro Base)
-        const caseGeo = new THREE.CylinderGeometry(1.5, 1.5, 0.5, 32, 1, true);
-        const watchCase = new THREE.Mesh(caseGeo, caseMaterial);
+        // Chasis del Reloj
+        const watchCase = new THREE.Mesh(new THREE.CylinderGeometry(1.4, 1.4, 0.45, 32, 1, true), caseMaterial);
         watchCase.rotation.x = Math.PI / 2;
         cyberWatch.add(watchCase);
 
-        // Componente B: Núcleo Interno Táctico
-        const coreGeo = new THREE.CylinderGeometry(1.2, 1.2, 0.4, 32);
-        const watchCore = new THREE.Mesh(coreGeo, coreMaterial);
+        // Núcleo
+        const watchCore = new THREE.Mesh(new THREE.CylinderGeometry(1.15, 1.15, 0.38, 32), coreMaterial);
         watchCore.rotation.x = Math.PI / 2;
         cyberWatch.add(watchCore);
 
-        // Componente C: Engranajes de Precisión (X-Ray exploding units)
+        // Mecanismos internos (X-Ray exploders)
         const gearGroup = new THREE.Group();
-        const gearGeo = new THREE.TorusGeometry(0.8, 0.05, 8, 24);
-        const gear1 = new THREE.Mesh(gearGeo, neonGearMaterial);
-        gear1.position.z = 0.1;
-        const gear2 = new THREE.Mesh(new THREE.TorusGeometry(0.5, 0.03, 8, 16), neonGearMaterial);
-        gear2.position.z = -0.1;
+        const gear1 = new THREE.Mesh(new THREE.TorusGeometry(0.75, 0.04, 8, 24), neonGearMaterial);
+        gear1.position.z = 0.08;
+        const gear2 = new THREE.Mesh(new THREE.TorusGeometry(0.45, 0.03, 8, 16), neonGearMaterial);
+        gear2.position.z = -0.08;
         gearGroup.add(gear1, gear2);
         cyberWatch.add(gearGroup);
 
-        // Componente D: Pantalla Holográfica Flotante
-        const screenGeo = new THREE.RingGeometry(1.2, 1.3, 32);
+        // Pantalla
         const screenMaterial = new THREE.MeshBasicMaterial({ color: 0x9d4edd, side: THREE.DoubleSide });
-        const holoScreen = new THREE.Mesh(screenGeo, screenMaterial);
-        holoScreen.position.z = 0.35;
+        const holoScreen = new THREE.Mesh(new THREE.RingGeometry(1.15, 1.25, 32), screenMaterial);
+        holoScreen.position.z = 0.32;
         cyberWatch.add(holoScreen);
 
-        // Componente E: Correas Superiores e Inferiores
-        const strapMaterial = new THREE.MeshStandardMaterial({ color: 0x08080a, roughness: 0.7 });
-        const strapGeo = new THREE.BoxGeometry(0.8, 1.5, 0.15);
+        // Correas Tácticas
+        const strapMaterial = new THREE.MeshStandardMaterial({ color: 0x060608, roughness: 0.75 });
+        const strapGeo = new THREE.BoxGeometry(0.75, 1.4, 0.12);
         
         const topStrap = new THREE.Mesh(strapGeo, strapMaterial);
-        topStrap.position.y = 1.4;
-        topStrap.position.z = -0.1;
+        topStrap.position.set(0, 1.35, -0.08);
         
         const bottomStrap = topStrap.clone();
-        bottomStrap.position.y = -1.4;
+        bottomStrap.position.y = -1.35;
 
-        cyberWatch.add(topStrap);
-        cyberWatch.add(bottomStrap);
-
+        cyberWatch.add(topStrap, bottomStrap);
         scene.add(cyberWatch);
 
-        // Rotación inicial base
-        cyberWatch.rotation.x = 0.3;
-        cyberWatch.rotation.y = -0.5;
+        // Orientación inicial agresiva
+        cyberWatch.rotation.set(0.35, -0.45, 0);
 
         /* =========================================================================
-           4. LÓGICA DE INTERACCIÓN MOUSE (SEGUIMIENTO SUAVE)
+           4. CONTROL MOUSE & TOUCH (INTERACCIÓN RESPONSIVE)
            ========================================================================= */
-        let mouseX = 0, mouseY = 0;
-        let targetX = 0, targetY = 0;
+        let mouseX = 0, targetX = 0;
+        let mouseY = 0, targetY = 0;
 
-        window.addEventListener('mousemove', (e) => {
-            // Mapea la posición del mouse entre -1 y 1
-            mouseX = (e.clientX / window.innerWidth) * 2 - 1;
-            mouseY = -(e.clientY / window.innerHeight) * 2 + 1;
-        });
+        const handleMove = (x, y) => {
+            mouseX = (x / window.innerWidth) * 2 - 1;
+            mouseY = -(y / window.innerHeight) * 2 + 1;
+        };
+
+        window.addEventListener('mousemove', (e) => handleMove(e.clientX, e.clientY));
+        
+        // Soporte Touch inercial suave para pantallas móviles
+        window.addEventListener('touchmove', (e) => {
+            if(e.touches.length > 0) {
+                handleMove(e.touches[0].clientX, e.touches[0].clientY);
+            }
+        }, { passive: true });
 
         /* =========================================================================
-           5. ANIMACIONES SECUENCIALES CON GSAP SCROLLTRIGGER
+           5. ORQUESTACIÓN DE SCROLL HÍBRIDA (GSAP SCROLLTRIGGER)
            ========================================================================= */
         
-        // Animaciones de Texto Iniciales (Fade In)
+        // Animación de entrada inicial suave
         gsap.to(".giant-text", {
             opacity: 1,
             translateY: 0,
-            duration: 1,
-            stagger: 0.2,
+            duration: 1.2,
+            stagger: 0.15,
             ease: "power4.out"
         });
 
-        // MASTER TIMELINE VINCULADO AL SCROLL
         const scrollTl = gsap.timeline({
             scrollTrigger: {
                 trigger: ".scroll-wrapper",
                 start: "top top",
                 end: "bottom bottom",
-                scrub: 1 // Suavizado de la animación con el scroll
+                scrub: 1.2
             }
         });
 
+        // Configuración de posiciones en scroll basadas en la pantalla
+        const xOffset = isMobile ? 0 : 1.3;  // En móvil se queda centrado, en PC se desplaza a la derecha
+        const yOffset = isMobile ? -1.2 : 0; // En móvil baja un poco para no pisar el texto superior
+
         scrollTl
-            // --- TRAMO 1: Despiece Explosivo ("X-Ray") ---
-            .to(watchCase.position, { z: 1.5, duration: 2 }, 0)
-            .to(topStrap.position, { y: 2.5, duration: 2 }, 0)
-            .to(bottomStrap.position, { y: -2.5, duration: 2 }, 0)
-            .to(gear1.position, { z: 0.8, rotation: 5, duration: 2 }, 0)
-            .to(gear2.position, { z: -0.8, rotation: -5, duration: 2 }, 0)
-            .to(cyberWatch.rotation, { y: Math.PI * 1.5, z: 0.5, duration: 2 }, 0)
-            .to("body", { backgroundColor: "#020c0f", duration: 2 }, 0) // Transición a fondo cian oscuro
+            // --- FASE 1: El Despiece Radical (X-Ray) ---
+            .to(watchCase.position, { z: 1.4, duration: 2 }, 0)
+            .to(topStrap.position, { y: 2.3, duration: 2 }, 0)
+            .to(bottomStrap.position, { y: -2.3, duration: 2 }, 0)
+            .to(gear1.position, { z: 0.7, rotation: 4, duration: 2 }, 0)
+            .to(gear2.position, { z: -0.7, rotation: -4, duration: 2 }, 0)
+            .to(cyberWatch.rotation, { y: Math.PI * 1.2, z: 0.3, duration: 2 }, 0)
+            .to("body", { backgroundColor: "#020a0d", duration: 2 }, 0)
 
-            // --- TRAMO 2: Reensamblaje y Customización de Color ---
+            // --- FASE 2: Retorno Magnético y Mutación de Color ---
             .to(watchCase.position, { z: 0, duration: 2 }, 2)
-            .to(topStrap.position, { y: 1.4, duration: 2 }, 2)
-            .to(bottomStrap.position, { y: -1.4, duration: 2 }, 2)
-            .to(gear1.position, { z: 0.1, duration: 2 }, 2)
-            .to(gear2.position, { z: -0.1, duration: 2 }, 2)
-            // Cambios estéticos sobre la marcha (Efecto Monster)
-            .to(coreMaterial.color, { r: 0.9, g: 0.4, b: 0.1, duration: 1 }, 2) // Giro a material naranja/cobre
-            .to(screenMaterial.color, { r: 1, g: 0.4, b: 0, duration: 1 }, 2) 
-            .to("body", { backgroundColor: "#140702", duration: 2 }, 2) // Mutación a fondo naranja neón
+            .to(topStrap.position, { y: 1.35, duration: 2 }, 2)
+            .to(bottomStrap.position, { y: -1.35, duration: 2 }, 2)
+            .to(gear1.position, { z: 0.08, duration: 2 }, 2)
+            .to(gear2.position, { z: -0.08, duration: 2 }, 2)
+            .to(coreMaterial.color, { r: 0.95, g: 0.42, b: 0.13, duration: 1 }, 2) // Mutación cromo-naranja
+            .to(screenMaterial.color, { r: 1, g: 0.35, b: 0, duration: 1 }, 2)
+            .to("body", { backgroundColor: "#120501", duration: 2 }, 2)
 
-            // --- TRAMO 3: Enfoque de Cámara y Escáner ---
-            .to(cyberWatch.position, { x: -1, duration: 2 }, 4)
-            .to(cyberWatch.rotation, { x: Math.PI / 2, y: 0, z: 0, duration: 2 }, 4) // Coloca el reloj plano frente a cámara
-            .to(camera.position, { z: 4, duration: 2 }, 4)
-            // Disparar los contadores numéricos
+            // --- FASE 3: Enfoque de Escáner Clínico ---
+            .to(cyberWatch.position, { x: -xOffset, y: yOffset, duration: 2 }, 4)
+            .to(cyberWatch.rotation, { x: Math.PI / 2, y: 0, z: 0, duration: 2 }, 4) // Reloj plano frontal
+            .to(camera.position, { z: isMobile ? 5 : 3.8, duration: 2 }, 4)
+            // Lógica de inyección de datos numéricos en pantalla
             .to("#stat-bat", {
                 innerText: "100%",
                 snap: { innerText: 1 },
-                duration: 2,
-                ease: "linear"
+                duration: 2
             }, 4)
             .to("#stat-cpu", {
-                innerText: "TURBO ACTIVE",
+                innerText: "TURBO LOGIC OVERDRIVE",
                 duration: 2
             }, 4);
 
         /* =========================================================================
-           6. INTERACTIVIDAD PREMIUM: BOTÓN DE SOBRECARGA (MODO HACKEO)
+           6. INTERFAZ CRÍTICA: ENGINE SOBRECARGA (MODO CLANDESTINO)
            ========================================================================= */
         const overloadBtn = document.getElementById('overload-btn');
         const glitchOverlay = document.getElementById('glitch-overlay');
@@ -408,81 +446,85 @@
         overloadBtn.addEventListener('click', () => {
             if(!isOverloaded) {
                 isOverloaded = true;
-                
-                // Activar Capas de Interrupción Visual
                 glitchOverlay.style.display = 'block';
                 document.body.classList.add('overload-active');
-                overloadBtn.innerText = "SYSTEM CRITICAL";
+                overloadBtn.innerText = "CRITICAL SYSTEM WARNING";
 
-                // Línea de tiempo de distorsión instantánea
                 const overloadTl = gsap.timeline();
-                overloadTl.to(cyberWatch.rotation, { y: "+=30", x: "+=15", duration: 1, ease: "power4.inOut" })
-                          .to(keyLight.color, { r: 1, g: 0, b: 0.3, duration: 0.1 }) // Cambia luces a modo alerta roja
-                          .to(rimLight.color, { r: 1, g: 0, b: 0, duration: 0.1 })
-                          .to(neonGearMaterial.color, { r: 1, g: 0, b: 0, duration: 0.1 })
-                          .to(neonGearMaterial.emissive, { r: 1, g: 0, b: 0, duration: 0.1 })
-                          .to(cyberWatch.scale, { x: 1.8, y: 1.8, z: 1.8, duration: 0.5, ease: "bounce.out" });
+                overloadTl.to(cyberWatch.rotation, { y: "+=25", x: "+=12", duration: 0.8, ease: "power4.inOut" })
+                          .to(keyLight.color, { r: 1, g: 0, b: 0.2, duration: 0.05 })
+                          .to(rimLight.color, { r: 1, g: 0, b: 0, duration: 0.05 })
+                          .to(neonGearMaterial.color, { r: 1, g: 0, b: 0, duration: 0.05 })
+                          .to(neonGearMaterial.emissive, { r: 1, g: 0, b: 0, duration: 0.05 })
+                          .to(cyberWatch.scale, { 
+                              x: baseScale * 1.5, 
+                              y: baseScale * 1.5, 
+                              z: baseScale * 1.5, 
+                              duration: 0.4, 
+                              ease: "back.out(2)" 
+                          });
                 
-                // Forzar animación cíclica salvaje en los engranajes
-                gsap.to(gearGroup.rotation, { z: 50, repeat: -1, duration: 2, ease: "none" });
-
+                gsap.to(gearGroup.rotation, { z: 60, repeat: -1, duration: 1.5, ease: "none" });
             } else {
-                // Restaurar Sistema
                 isOverloaded = false;
                 glitchOverlay.style.display = 'none';
                 document.body.classList.remove('overload-active');
                 overloadBtn.innerText = "DO NOT PRESS";
                 
                 gsap.killTweensOf(gearGroup.rotation);
-                gsap.to(cyberWatch.scale, { x: 1, y: 1, z: 1, duration: 0.5 });
-                gsap.to(keyLight.color, { r: 0, g: 0.96, b: 0.83, duration: 0.5 });
-                gsap.to(neonGearMaterial.color, { r: 0, g: 0.96, b: 0.83, duration: 0.5 });
-                gsap.to(neonGearMaterial.emissive, { r: 0, g: 0.96, b: 0.83, duration: 0.5 });
+                gsap.to(cyberWatch.scale, { x: baseScale, y: baseScale, z: baseScale, duration: 0.4 });
+                gsap.to(keyLight.color, { r: 0, g: 0.96, b: 0.83, duration: 0.4 });
+                gsap.to(neonGearMaterial.color, { r: 0, g: 0.96, b: 0.83, duration: 0.4 });
+                gsap.to(neonGearMaterial.emissive, { r: 0, g: 0.96, b: 0.83, duration: 0.4 });
             }
         });
 
         /* =========================================================================
-           7. BUCLE DE RENDERIZADO (TICK)
-           ========================================================================= */
+           7. LOOP DE RENDERIZADO (60 FPS CONSTANTES)
+           ======================================================================== */
         const clock = new THREE.Clock();
 
         function animate() {
             requestAnimationFrame(animate);
-
             const elapsedTime = clock.getElapsedTime();
 
-            // Rotación constante automática ultra suave de los componentes internos
             if(!isOverloaded) {
-                gear1.rotation.z = elapsedTime * 0.5;
-                gear2.rotation.z = -elapsedTime * 0.8;
-                
-                // Rotación flotante sutil general
-                cyberWatch.rotation.y += 0.003;
+                gear1.rotation.z = elapsedTime * 0.4;
+                gear2.rotation.z = -elapsedTime * 0.7;
+                cyberWatch.rotation.y += 0.002; // Giro inercial leve
             }
 
-            // Interpolación suavizada (Lerp) para el seguimiento del puntero del ratón
-            targetX += (mouseX - targetX) * 0.05;
-            targetY += (mouseY - targetY) * 0.05;
+            // Suavizado Lerp matemático para el movimiento del ratón/touch
+            targetX += (mouseX - targetX) * 0.06;
+            targetY += (mouseY - targetY) * 0.06;
 
-            // El ratón inclina levemente el grupo entero para reflejar luces
-            cyberWatch.rotation.z += targetX * 0.01;
-            cyberWatch.rotation.x += targetY * 0.01;
+            cyberWatch.rotation.z += targetX * 0.008;
+            cyberWatch.rotation.x += targetY * 0.008;
 
             renderer.render(scene, camera);
         }
 
-        // Inicializar bucle
         animate();
 
         /* =========================================================================
-           8. RESPONSIVE DESIGN (CONTROL DE RESIZE)
+           8. MANEJO DE RESIZE ULTRA-RESPONSIVE DINÁMICO
            ========================================================================= */
         window.addEventListener('resize', () => {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
-        });
+            const width = window.innerWidth;
+            const height = window.innerHeight;
 
+            camera.aspect = width / height;
+            
+            // Recalcular distancia de cámara según nueva pantalla sobre la marcha
+            const currentMobile = width <= 768;
+            camera.position.z = currentMobile ? 6.5 : 5.5;
+            
+            const updatedScale = currentMobile ? 0.85 : 1.1;
+            if(!isOverloaded) cyberWatch.scale.set(updatedScale, updatedScale, updatedScale);
+
+            camera.updateProjectionMatrix();
+            renderer.setSize(width, height);
+        });
     </script>
 </body>
 </html>
